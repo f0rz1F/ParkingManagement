@@ -12,7 +12,7 @@
 
 - Server/ServerApp - серверна частина (ASP.NET Core, .NET 8)
 - Client/ClientApp - клієнтська частина (.NET MAUI, .NET 8)
-  - ViewModels - папка для моделей представлення (MVVM)
+- ViewModels - папка для моделей представлення (MVVM)
 
 ## Інструкція по запуску
 
