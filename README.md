@@ -27,6 +27,6 @@
 2. Сервер запуститься і поверне базову сторінку на вказаному порту.
 
 Запуск клієнтської частини:
-1. Відкрити Client/ClientApp/ClientApp.csproj у Visual Studio 2022
+1. Відкрити Client/ClientApp/ClientApp.csproj у Visual Studio
 2. Обрати цільовий пристрій (Android Emulator або Windows Machine)
 3. Запустити проект через F5
