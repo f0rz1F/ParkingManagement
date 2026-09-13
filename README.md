@@ -1,5 +1,4 @@
-# ParkingManagement
-
+ParkingManagement
 Система для управління Attendants, ParkingSpots, Reservations з MVC-адмін-панеллю та MAUI-застосунком.
 
 Предметна область: система управління парковкою (варіант 4).
@@ -8,16 +7,16 @@
 - ParkingSpots (Items) - паркувальні місця
 - Reservations (Actions) - бронювання місць
 
-## Структура проекту
+Структура проекту
 
 - Server/ServerApp - серверна частина (ASP.NET Core, .NET 8)
 - Client/ClientApp - клієнтська частина (.NET MAUI, .NET 8)
   - ViewModels - папка для моделей представлення (MVVM)
 
-## Інструкція по запуску
+Інструкція по запуску
 
 Вимоги:
-- Visual Studio 2022
+- Visual Studio
 - .NET 8 SDK
 - Workloads: ASP.NET and web development, .NET MAUI
 
