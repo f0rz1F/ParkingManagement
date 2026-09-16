@@ -1,7 +1,24 @@
--- Система управлiння парковкою
--- База даних: SQLite
+-- Опис полів таблиць:
+-- 1. Attendants (Працівники парковки / Користувачі):
+--    - ID: унікальний номер працівника (первинний ключ)
+--    - Name: ім'я та прізвище працівника
+--    - Email: електронна пошта (використовується як логін для входу)
+--    - PasswordHash: пароль у захешованому вигляді для безпеки
+--
+-- 2. ParkingSpots (Паркувальні місця):
+--    - ID: унікальний номер запису паркомісця
+--    - Number: номер паркувального місця на парковці (1, 2, 3...)
+--    - Status: поточний стан місця ('Free' - вільне, 'Occupied' - зайняте)
+--    - UserID: ID працівника, який обслуговує або закріплений за місцем
+--
+-- 3. Reservations (Бронювання місць):
+--    - ID: унікальний номер бронювання
+--    - AttendantID: ID працівника, який оформив це бронювання
+--    - SpotID: ID паркувального місця, яке забронювали
+--    - ReservationDate: дата та час створення броні
+--    - Status: стан бронювання ('Active' - активне, 'Completed' - завершене, 'Cancelled' - скасоване)
 
--- Таблиця працiвникiв парковки (Users)
+-- Таблиця працівників парковки (Users)
 CREATE TABLE IF NOT EXISTS Attendants (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
@@ -9,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Attendants (
     PasswordHash TEXT NOT NULL
 );
 
--- Таблиця паркувальних мiсць (Items)
+-- Таблиця паркувальних місць (Items)
 CREATE TABLE IF NOT EXISTS ParkingSpots (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     Number INTEGER NOT NULL UNIQUE,
@@ -29,15 +46,15 @@ CREATE TABLE IF NOT EXISTS Reservations (
     FOREIGN KEY (SpotID) REFERENCES ParkingSpots(ID)
 );
 
--- Тестовi данi
+-- Тестові дані
 
--- Працiвники (пароль: Password123!)
+-- Працівники (пароль: Password123!)
 INSERT INTO Attendants (Name, Email, PasswordHash) VALUES
 ('Ivan Petrenko', 'ivan@parking.com', 'AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=='),
 ('Olena Koval', 'olena@parking.com', 'AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=='),
 ('Maksym Shevchenko', 'maksym@parking.com', 'AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==');
 
--- Паркувальнi мiсця
+-- Паркувальні місця
 INSERT INTO ParkingSpots (Number, Status, UserID) VALUES
 (1, 'Free', NULL),
 (2, 'Occupied', 1),
