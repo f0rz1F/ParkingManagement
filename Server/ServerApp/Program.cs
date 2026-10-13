@@ -6,7 +6,7 @@ using ServerApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Підключення SQLite бази даних
+// Підключення бази даних SQLite через AppDbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -22,6 +22,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    // Параметри валідації токена
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -33,9 +34,10 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 
-    // Читання токена з кукі браузера або із заголовка Authorization
+    // Обробка подій аутентифікації
     options.Events = new JwtBearerEvents
     {
+        // Отримання токена з кукі jwt_token
         OnMessageReceived = context =>
         {
             if (context.Request.Cookies.ContainsKey("jwt_token"))
@@ -44,9 +46,9 @@ builder.Services.AddAuthentication(options =>
             }
             return Task.CompletedTask;
         },
+        // Перенаправлення на сторінку входу при відсутності доступу
         OnChallenge = context =>
         {
-            // Перенаправлення браузера на форму входу при відсутності доступу
             if (!context.Request.Headers.Accept.ToString().Contains("application/json"))
             {
                 context.HandleResponse();
@@ -57,9 +59,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(); // Авторизація на основі ролей
 
-// Підтримка контролерів та представлень (MVC)
+// Підтримка MVC контролерів та представлень
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -69,14 +71,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseStaticFiles();
+app.UseStaticFiles(); // Обробка статичних файлів
 app.UseRouting();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthentication(); // Аутентифікація користувача
+app.UseAuthorization();  // Авторизація та перевірка прав доступу
 
-app.MapGet("/", () => "Система управління парковкою");
+// Налаштування маршрутизації MVC контролерів за замовчуванням
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Admin}/{action=Index}/{id?}");
 
-app.MapControllers();
+app.MapControllers(); // Маршрутизація атрибутних контролерів
 
 app.Run();

@@ -1,0 +1,83 @@
+@model IEnumerable<ServerApp.Models.ParkingSpot>
+
+@{
+    ViewData["Title"] = "Паркувальні місця";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-car-front text-info me-2"></i>Паркувальні місця</h2>
+        <p class="text-muted mb-0">Керування місцями на парковці та їхніми статусами (Items)</p>
+    </div>
+    <a asp-action="Create" class="btn btn-info text-white">
+        <i class="bi bi-plus-circle me-1"></i> Створити місце
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Номер місця</th>
+                        <th>Статус</th>
+                        <th>Закріплений працівник</th>
+                        <th class="text-end pe-4">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">Записів не знайдено</td>
+                    </tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <span class="badge bg-dark fs-6 px-3 py-2">
+                                <i class="bi bi-geo-alt me-1"></i> № @item.Number
+                            </span>
+                        </td>
+                        <td>
+                            @if (item.Status == "Free")
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                    <i class="bi bi-check-circle me-1"></i> Вільне (Free)
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                    <i class="bi bi-x-circle me-1"></i> Зайняте (Occupied)
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Attendant != null)
+                            {
+                                <span class="fw-semibold text-primary"><i class="bi bi-person me-1"></i>@item.Attendant.Name</span>
+                                <span class="text-muted small">(@item.Attendant.Email)</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">Не закріплено</span>
+                            }
+                        </td>
+                        <td class="text-end pe-4">
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i> Редагувати
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Видалити
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

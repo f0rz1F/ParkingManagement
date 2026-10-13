@@ -2,24 +2,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ServerApp.Models
 {
-    // Працівник парковки (Users)
+    // Модель працівника (таблиця Attendants)
     public class Attendant
     {
         [Key]
-        public int ID { get; set; }
+        public int ID { get; set; } // Первинний ключ
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty; // Ім'я
 
         [Required]
         [EmailAddress]
         [StringLength(100)]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty; // Електронна пошта
 
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty; // Хеш пароля
 
+        // Навігаційні властивості
         public ICollection<ParkingSpot> ParkingSpots { get; set; } = new List<ParkingSpot>();
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }

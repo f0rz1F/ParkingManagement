@@ -1,0 +1,60 @@
+@model ServerApp.Models.Reservation
+
+@{
+    ViewData["Title"] = "Редагувати бронювання";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 class="fw-bold mb-0">Редагування бронювання #@Model.ID</h3>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> До списку
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.ID" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="ID" />
+
+                    <div class="mb-3">
+                        <label asp-for="SpotID" class="form-label fw-semibold">Паркувальне місце</label>
+                        <select asp-for="SpotID" class="form-select" asp-items="ViewBag.SpotID" required></select>
+                        <span asp-validation-for="SpotID" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AttendantID" class="form-label fw-semibold">Працівник (користувач)</label>
+                        <select asp-for="AttendantID" class="form-select" asp-items="ViewBag.AttendantID" required></select>
+                        <span asp-validation-for="AttendantID" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ReservationDate" class="form-label fw-semibold">Дата та час</label>
+                        <input asp-for="ReservationDate" type="datetime-local" class="form-control" required />
+                        <span asp-validation-for="ReservationDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Status" class="form-label fw-semibold">Статус</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Active">Активне (Active)</option>
+                            <option value="Completed">Завершене (Completed)</option>
+                            <option value="Cancelled">Скасоване (Cancelled)</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Скасувати</a>
+                        <button type="submit" class="btn btn-warning text-dark px-4">
+                            <i class="bi bi-check-lg me-1"></i> Зберегти зміни
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

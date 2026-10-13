@@ -1,0 +1,68 @@
+@model IEnumerable<ServerApp.Models.Attendant>
+
+@{
+    ViewData["Title"] = "Працівники";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-people text-primary me-2"></i>Працівники парковки</h2>
+        <p class="text-muted mb-0">Керування обліковими записами працівників (Users)</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i> Додати працівника
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Ім'я</th>
+                        <th>Електронна пошта</th>
+                        <th>Закріплені місця</th>
+                        <th>Бронювань</th>
+                        <th class="text-end pe-4">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Записів не знайдено</td>
+                    </tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4 fw-semibold text-muted">#@item.ID</td>
+                        <td class="fw-bold">@item.Name</td>
+                        <td><span class="text-secondary">@item.Email</span></td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                @item.ParkingSpots.Count місць
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning-subtle text-dark border border-warning-subtle">
+                                @item.Reservations.Count записів
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i> Редагувати
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Видалити
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -29,7 +29,8 @@ ParkingManagement
    (створиться файл бази parking.db з початковими тестовими даними)
 3. Запустити сервер:
    dotnet run --project Server/ServerApp/ServerApp.csproj
-   Сервер запуститься і поверне базову сторінку на вказаному порту.
+   Після запуску доступна сторінка входу (/auth/login) та повноцінна MVC адмін-панель (/admin) для керування працівниками, місцями та бронюваннями (CRUD).
+   Облікові дані адміністратора: admin@parking.com / AdminPassword123!
 
 Запуск клієнтської частини:
 1. Відкрити Client/ClientApp/ClientApp.csproj у Visual Studio

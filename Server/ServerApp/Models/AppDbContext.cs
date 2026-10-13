@@ -2,15 +2,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ServerApp.Models
 {
+    // Контекст бази даних SQLite
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
-        public DbSet<Attendant> Attendants { get; set; }
-        public DbSet<ParkingSpot> ParkingSpots { get; set; }
-        public DbSet<Reservation> Reservations { get; set; }
+        // Таблиці бази даних
+        public DbSet<Attendant> Attendants { get; set; }     // Працівники
+        public DbSet<ParkingSpot> ParkingSpots { get; set; } // Паркувальні місця
+        public DbSet<Reservation> Reservations { get; set; } // Бронювання
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,26 +27,29 @@ namespace ServerApp.Models
                 .HasIndex(p => p.Number)
                 .IsUnique();
 
-            // Зв'язки
+            // Зв'язки між сутностями:
+            // ParkingSpot -> Attendant (UserID)
             modelBuilder.Entity<ParkingSpot>()
                 .HasOne(p => p.Attendant)
                 .WithMany(a => a.ParkingSpots)
                 .HasForeignKey(p => p.UserID)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // Reservation -> Attendant (AttendantID)
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.Attendant)
                 .WithMany(a => a.Reservations)
                 .HasForeignKey(r => r.AttendantID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Reservation -> ParkingSpot (SpotID)
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.ParkingSpot)
                 .WithMany(p => p.Reservations)
                 .HasForeignKey(r => r.SpotID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Тестові дані
+            // Початкові тестові дані (Seed data)
             modelBuilder.Entity<Attendant>().HasData(
                 new Attendant { ID = 1, Name = "Ivan Petrenko", Email = "ivan@parking.com", PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==" },
                 new Attendant { ID = 2, Name = "Olena Koval", Email = "olena@parking.com", PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==" },

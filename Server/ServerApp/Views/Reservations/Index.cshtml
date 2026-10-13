@@ -1,0 +1,103 @@
+@model IEnumerable<ServerApp.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Бронювання";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-calendar-check text-warning me-2"></i>Журнал бронювань</h2>
+        <p class="text-muted mb-0">Керування запитами та історією бронювання паркомісць (Actions)</p>
+    </div>
+    <a asp-action="Create" class="btn btn-warning text-dark">
+        <i class="bi bi-calendar-plus me-1"></i> Створити бронювання
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Паркомісце</th>
+                        <th>Працівник</th>
+                        <th>Дата бронювання</th>
+                        <th>Статус</th>
+                        <th class="text-end pe-4">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Записів не знайдено</td>
+                    </tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4 fw-semibold text-muted">#@item.ID</td>
+                        <td>
+                            @if (item.ParkingSpot != null)
+                            {
+                                <span class="badge bg-dark px-3 py-2">
+                                    <i class="bi bi-geo-alt me-1"></i> № @item.ParkingSpot.Number
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">ID: @item.SpotID</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Attendant != null)
+                            {
+                                <span class="fw-semibold text-primary"><i class="bi bi-person me-1"></i>@item.Attendant.Name</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">ID: @item.AttendantID</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="text-secondary">
+                                <i class="bi bi-clock me-1"></i>@item.ReservationDate.ToString("dd.MM.yyyy HH:mm")
+                            </span>
+                        </td>
+                        <td>
+                            @if (item.Status == "Active")
+                            {
+                                <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-2">
+                                    <i class="bi bi-hourglass-split me-1"></i> Активне (Active)
+                                </span>
+                            }
+                            else if (item.Status == "Completed")
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                    <i class="bi bi-check2-circle me-1"></i> Завершене (Completed)
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
+                                    <i class="bi bi-x-circle me-1"></i> Скасоване (Cancelled)
+                                </span>
+                            }
+                        </td>
+                        <td class="text-end pe-4">
+                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i> Редагувати
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Видалити
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

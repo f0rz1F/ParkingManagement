@@ -3,29 +3,30 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ServerApp.Models
 {
-    // Бронювання (Actions)
+    // Модель бронювання (таблиця Reservations)
     public class Reservation
     {
         [Key]
-        public int ID { get; set; }
+        public int ID { get; set; } // Первинний ключ
 
         [Required]
-        public int AttendantID { get; set; }
+        public int AttendantID { get; set; } // Зовнішній ключ на Attendant
 
         [Required]
-        public int SpotID { get; set; }
+        public int SpotID { get; set; } // Зовнішній ключ на ParkingSpot
 
         [Required]
-        public DateTime ReservationDate { get; set; }
+        public DateTime ReservationDate { get; set; } // Дата бронювання
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = "Active"; // Active, Completed, Cancelled
+        public string Status { get; set; } = "Active"; // Статус (Active / Completed / Cancelled)
 
+        // Навігаційні властивості
         [ForeignKey("AttendantID")]
-        public Attendant? Attendant { get; set; }
+        public Attendant? Attendant { get; set; } // Працівник
 
         [ForeignKey("SpotID")]
-        public ParkingSpot? ParkingSpot { get; set; }
+        public ParkingSpot? ParkingSpot { get; set; } // Паркувальне місце
     }
 }
