@@ -9,7 +9,8 @@ ParkingManagement
 
 Структура проекту
 
-- Server/ServerApp - серверна частина (ASP.NET Core, .NET 8)
+- Database - схема бази даних init.sql
+- Server/ServerApp - серверна частина (ASP.NET Core, .NET 8, EF Core SQLite)
 - Client/ClientApp - клієнтська частина (.NET MAUI, .NET 8)
   - ViewModels - папка для моделей представлення (MVVM)
 
@@ -21,9 +22,14 @@ ParkingManagement
 - Workloads: ASP.NET and web development, .NET MAUI
 
 Запуск серверної частини:
-1. Відкрити консоль у папці проекту або запустити через dotnet:
+1. Скопіювати файл налаштувань:
+   Скопіювати Server/ServerApp/appsettings.example.json як Server/ServerApp/appsettings.json
+2. Застосувати міграції для створення бази даних SQLite:
+   dotnet ef database update --project Server/ServerApp/ServerApp.csproj
+   (створиться файл бази parking.db з початковими тестовими даними)
+3. Запустити сервер:
    dotnet run --project Server/ServerApp/ServerApp.csproj
-2. Сервер запуститься і поверне базову сторінку на вказаному порту.
+   Сервер запуститься і поверне базову сторінку на вказаному порту.
 
 Запуск клієнтської частини:
 1. Відкрити Client/ClientApp/ClientApp.csproj у Visual Studio
