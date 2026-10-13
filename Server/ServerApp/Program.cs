@@ -46,10 +46,10 @@ builder.Services.AddAuthentication(options =>
             }
             return Task.CompletedTask;
         },
-        // Перенаправлення на сторінку входу при відсутності доступу
+        // Перенаправлення на сторінку входу при відсутності доступу (крім API запитів)
         OnChallenge = context =>
         {
-            if (!context.Request.Headers.Accept.ToString().Contains("application/json"))
+            if (!context.Request.Path.StartsWithSegments("/api") && !context.Request.Headers.Accept.ToString().Contains("application/json"))
             {
                 context.HandleResponse();
                 context.Response.Redirect("/auth/login");

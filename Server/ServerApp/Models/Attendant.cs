@@ -17,8 +17,8 @@ namespace ServerApp.Models
         [StringLength(100)]
         public string Email { get; set; } = string.Empty; // Електронна пошта
 
-        [Required]
-        public string PasswordHash { get; set; } = string.Empty; // Хеш пароля
+        [Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidateNever]
+        public string PasswordHash { get; set; } = string.Empty; // Хеш пароля (встановлюється сервером)
 
         // Навігаційні властивості
         public ICollection<ParkingSpot> ParkingSpots { get; set; } = new List<ParkingSpot>();

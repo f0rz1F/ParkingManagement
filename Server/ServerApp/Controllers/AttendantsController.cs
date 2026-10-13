@@ -42,6 +42,8 @@ namespace ServerApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Email")] Attendant attendant, string? password)
         {
+            ModelState.Remove(nameof(Attendant.PasswordHash));
+
             if (ModelState.IsValid)
             {
                 // Перевірка унікальності email
@@ -93,8 +95,18 @@ namespace ServerApp.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(Attendant.PasswordHash));
+
             if (ModelState.IsValid)
             {
+                // Перевірка унікальності email серед інших працівників
+                var emailExists = await _context.Attendants.AnyAsync(a => a.Email == attendant.Email && a.ID != id);
+                if (emailExists)
+                {
+                    ModelState.AddModelError("Email", "Ця електронна пошта вже використовується іншим працівником");
+                    return View(attendant);
+                }
+
                 var existing = await _context.Attendants.FindAsync(id);
                 if (existing == null)
                 {

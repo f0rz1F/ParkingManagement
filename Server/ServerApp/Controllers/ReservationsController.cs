@@ -52,18 +52,23 @@ namespace ServerApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Перевірка: чи не зайняте вже це паркомісце іншим бронюванням
+                var spot = await _context.ParkingSpots.FindAsync(reservation.SpotID);
+                if (spot != null && spot.Status == "Occupied" && reservation.Status == "Active")
+                {
+                    ModelState.AddModelError("SpotID", "Це паркувальне місце наразі вже зайняте");
+                    await PopulateDropDownLists(reservation.SpotID, reservation.AttendantID);
+                    return View(reservation);
+                }
+
                 _context.Add(reservation);
 
                 // Оновлення статусу місця на Occupied, якщо бронювання активне
-                if (reservation.Status == "Active")
+                if (reservation.Status == "Active" && spot != null)
                 {
-                    var spot = await _context.ParkingSpots.FindAsync(reservation.SpotID);
-                    if (spot != null)
-                    {
-                        spot.Status = "Occupied";
-                        spot.UserID = reservation.AttendantID;
-                        _context.Update(spot);
-                    }
+                    spot.Status = "Occupied";
+                    spot.UserID = reservation.AttendantID;
+                    _context.Update(spot);
                 }
 
                 await _context.SaveChangesAsync();
@@ -171,6 +176,18 @@ namespace ServerApp.Controllers
             var reservation = await _context.Reservations.FindAsync(id);
             if (reservation != null)
             {
+                // Якщо видаляється активне бронювання, повертаємо місцю статус вільного
+                if (reservation.Status == "Active")
+                {
+                    var spot = await _context.ParkingSpots.FindAsync(reservation.SpotID);
+                    if (spot != null && spot.UserID == reservation.AttendantID)
+                    {
+                        spot.Status = "Free";
+                        spot.UserID = null;
+                        _context.Update(spot);
+                    }
+                }
+
                 _context.Reservations.Remove(reservation);
                 await _context.SaveChangesAsync();
             }
