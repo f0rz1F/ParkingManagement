@@ -8,12 +8,37 @@ namespace ClientApp.Models
         public string Status { get; set; } = "Free";
         public int? UserID { get; set; }
         public string? AttendantName { get; set; }
+        public bool IsMine { get; set; }
 
         public bool IsFree => Status == "Free";
         public bool HasAttendant => !string.IsNullOrEmpty(AttendantName);
-        public string DisplayStatus => IsFree ? "Вільне" : "Зайняте";
-        public Color StatusBadgeColor => IsFree ? Color.FromArgb("#198754") : Color.FromArgb("#dc3545");
-        public Color CardBackgroundColor => IsFree ? Color.FromArgb("#f8fff9") : Color.FromArgb("#fff8f8");
+
+        public string DisplayStatus
+        {
+            get
+            {
+                if (IsMine) return "Заброньовано вами";
+                return IsFree ? "Вільне" : "Зайняте";
+            }
+        }
+
+        public Color StatusBadgeColor
+        {
+            get
+            {
+                if (IsMine) return Color.FromArgb("#0d6efd"); // Синій бейдж для свого місця
+                return IsFree ? Color.FromArgb("#198754") : Color.FromArgb("#dc3545"); // Зелений або червоний
+            }
+        }
+
+        public Color CardBackgroundColor
+        {
+            get
+            {
+                if (IsMine) return Color.FromArgb("#eff6ff"); // Світло-блакитний фон
+                return IsFree ? Color.FromArgb("#f8fff9") : Color.FromArgb("#fff8f8");
+            }
+        }
     }
 
     // Модель результату бронювання (Actions)

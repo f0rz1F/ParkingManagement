@@ -115,6 +115,27 @@ namespace ClientApp.Services
             }
         }
 
+        // Скасування бронювання та звільнення місця (DELETE: /api/actions/{spotId})
+        public async Task<(bool Success, string Message)> CancelReservationAsync(int spotId)
+        {
+            ApplyAuthorizationHeader();
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"/api/actions/{spotId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, "Бронювання скасовано, місце успішно звільнено!");
+                }
+
+                var errorText = await response.Content.ReadAsStringAsync();
+                return (false, string.IsNullOrEmpty(errorText) ? "Не вдалося скасувати бронювання" : errorText);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Помилка запиту: {ex.Message}");
+            }
+        }
+
         // Вихід із системи (очищення збереженого токена)
         public void Logout()
         {
@@ -130,6 +151,7 @@ namespace ClientApp.Services
 
         public string GetToken() => Preferences.Default.Get(TokenKey, string.Empty);
         public string GetUserName() => Preferences.Default.Get(UserNameKey, "Користувач");
+        public int GetUserId() => Preferences.Default.Get(UserIdKey, 0);
 
         private void ApplyAuthorizationHeader()
         {

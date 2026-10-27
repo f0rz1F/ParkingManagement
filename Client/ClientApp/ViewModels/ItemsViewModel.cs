@@ -58,9 +58,11 @@ namespace ClientApp.ViewModels
                     return;
                 }
 
+                var myUserId = _apiService.GetUserId();
                 Spots.Clear();
                 foreach (var spot in list)
                 {
+                    spot.IsMine = (spot.UserID.HasValue && spot.UserID.Value == myUserId);
                     Spots.Add(spot);
                 }
 
@@ -73,6 +75,35 @@ namespace ClientApp.ViewModels
             {
                 IsBusy = false;
                 IsRefreshing = false;
+            }
+        }
+
+        // Скасування власного бронювання та звільнення місця
+        [RelayCommand]
+        private async Task CancelReservationAsync(SpotItem? spot)
+        {
+            if (spot == null || IsBusy) return;
+
+            bool confirm = await Shell.Current.DisplayAlert("Звільнення місця", $"Ви бажаєте скасувати бронювання місця № {spot.Number}?", "Так, звільнити", "Ні");
+            if (!confirm) return;
+
+            IsBusy = true;
+            try
+            {
+                var (success, message) = await _apiService.CancelReservationAsync(spot.ID);
+                if (success)
+                {
+                    await Shell.Current.DisplayAlert("Успіх", message, "OK");
+                    await LoadSpotsAsync();
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Помилка", message, "OK");
+                }
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 

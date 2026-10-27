@@ -133,5 +133,47 @@ namespace ServerApp.Controllers.Api
 
             return CreatedAtAction(nameof(GetReservations), new { id = reservation.ID }, resultDto);
         }
+
+        // Скасування активного бронювання та звільнення місця (DELETE: /api/actions/{spotId})
+        [HttpDelete("{spotId:int}")]
+        [HttpPost("cancel/{spotId:int}")]
+        public async Task<IActionResult> CancelReservation(int spotId)
+        {
+            var spot = await _context.ParkingSpots.FindAsync(spotId);
+            if (spot == null)
+            {
+                return NotFound(new { message = "Паркувальне місце не знайдено" });
+            }
+
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int.TryParse(userIdString, out var currentUserId);
+            var isAdmin = User.IsInRole("Admin");
+
+            // Перевіряємо, чи має право користувач звільнити місце
+            if (!isAdmin && spot.UserID != currentUserId)
+            {
+                return Forbid();
+            }
+
+            // Оновлення статусу активного бронювання на Cancelled
+            var activeReservation = await _context.Reservations
+                .Where(r => r.SpotID == spotId && r.Status == "Active")
+                .OrderByDescending(r => r.ReservationDate)
+                .FirstOrDefaultAsync();
+
+            if (activeReservation != null)
+            {
+                activeReservation.Status = "Cancelled";
+                _context.Reservations.Update(activeReservation);
+            }
+
+            // Звільнення місця
+            spot.Status = "Free";
+            spot.UserID = null;
+            _context.ParkingSpots.Update(spot);
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Бронювання успішно скасовано, місце звільнено" });
+        }
     }
 }
