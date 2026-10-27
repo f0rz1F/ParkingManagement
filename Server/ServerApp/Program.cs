@@ -64,6 +64,55 @@ builder.Services.AddAuthorization(); // Авторизація на основі
 // Підтримка MVC контролерів та представлень
 builder.Services.AddControllersWithViews();
 
+// Налаштування Swagger документації API
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "ParkingManagement API",
+        Version = "v1",
+        Description = "REST API для взаємодії з мобільним застосунком .NET MAUI"
+    });
+
+    // Підтримка передачі JWT Bearer токена в Swagger UI
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Введіть токен у форматі: Bearer {ваш_токен}"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// Налаштування CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -73,6 +122,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles(); // Обробка статичних файлів
 app.UseRouting();
+
+app.UseCors(); // Дозвіл крос-доменних запитів від клієнта
+
+app.UseSwagger(); // Генерація специфікації OpenAPI (Swagger)
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkingManagement API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseAuthentication(); // Аутентифікація користувача
 app.UseAuthorization();  // Авторизація та перевірка прав доступу
