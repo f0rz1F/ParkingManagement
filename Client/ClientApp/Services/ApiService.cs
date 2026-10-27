@@ -1,42 +1,129 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using ClientApp.Models;
 
 namespace ClientApp.Services
 {
-    // Сервіс для підготовки взаємодії з REST API (макет для перевірки MVVM)
+    // Сервіс взаємодії MAUI застосунку з REST API сервером
     public class ApiService
     {
-        private string _userName = "Іван Петренко";
+        private readonly HttpClient _httpClient;
+        private const string TokenKey = "auth_jwt_token";
+        private const string UserNameKey = "user_name";
+        private const string UserEmailKey = "user_email";
+        private const string UserIdKey = "user_id";
 
-        // Перевірка авторизації користувача
+        public ApiService(HttpClient? httpClient = null)
+        {
+            // Для Android емулятора localhost доступний через 10.0.2.2, для Windows — через localhost
+            var baseUrl = DeviceInfo.Platform == DevicePlatform.Android
+                ? "http://10.0.2.2:5088"
+                : "http://localhost:5088";
+
+            _httpClient = httpClient ?? new HttpClient();
+            _httpClient.BaseAddress = new Uri(baseUrl);
+            _httpClient.Timeout = TimeSpan.FromSeconds(15);
+        }
+
+        // Авторизація користувача (POST: /api/auth/login)
         public async Task<(bool Success, string Message, UserSession? Session)> LoginAsync(string email, string password)
         {
-            await Task.Delay(100);
-            return (true, "Успішний вхід", new UserSession { Token = "mock_token", Name = _userName, Email = email, Role = "User" });
+            try
+            {
+                var payload = new { email, password };
+                var response = await _httpClient.PostAsJsonAsync("/api/auth/login", payload);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var session = await response.Content.ReadFromJsonAsync<UserSession>(new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (session != null && !string.IsNullOrEmpty(session.Token))
+                    {
+                        Preferences.Default.Set(TokenKey, session.Token);
+                        Preferences.Default.Set(UserNameKey, session.Name);
+                        Preferences.Default.Set(UserEmailKey, session.Email);
+                        Preferences.Default.Set(UserIdKey, session.UserID);
+                        return (true, "Успішний вхід", session);
+                    }
+                }
+
+                return (false, "Невірний email або пароль", null);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Помилка з'єднання: {ex.Message}", null);
+            }
         }
 
-        // Отримання тестового списку паркомісць
+        // Отримання списку всіх паркомісць (GET: /api/items)
         public async Task<List<SpotItem>> GetSpotsAsync()
         {
-            await Task.Delay(100);
-            return new List<SpotItem>
+            ApplyAuthorizationHeader();
+            try
             {
-                new SpotItem { ID = 1, Number = 101, Status = "Free" },
-                new SpotItem { ID = 2, Number = 102, Status = "Occupied", AttendantName = "Іван Петренко" },
-                new SpotItem { ID = 3, Number = 103, Status = "Free" }
-            };
+                var spots = await _httpClient.GetFromJsonAsync<List<SpotItem>>("/api/items", new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return spots ?? new List<SpotItem>();
+            }
+            catch
+            {
+                return new List<SpotItem>();
+            }
         }
 
-        // Створення нового бронювання
+        // Створення нового бронювання (POST: /api/actions)
         public async Task<(bool Success, string Message)> CreateReservationAsync(int spotId)
         {
-            await Task.Delay(100);
-            return (true, "Паркомісце успішно заброньовано");
+            ApplyAuthorizationHeader();
+            try
+            {
+                var payload = new { spotID = spotId };
+                var response = await _httpClient.PostAsJsonAsync("/api/actions", payload);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, "Паркомісце успішно заброньовано!");
+                }
+
+                var errorText = await response.Content.ReadAsStringAsync();
+                return (false, string.IsNullOrEmpty(errorText) ? "Не вдалося забронювати місце" : errorText);
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Помилка запиту: {ex.Message}");
+            }
         }
 
-        // Вихід із системи
-        public void Logout() { }
+        // Вихід із системи (очищення збереженого токена)
+        public void Logout()
+        {
+            Preferences.Default.Remove(TokenKey);
+            Preferences.Default.Remove(UserNameKey);
+            Preferences.Default.Remove(UserEmailKey);
+            Preferences.Default.Remove(UserIdKey);
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+        }
 
-        public bool IsAuthenticated() => true;
-        public string GetUserName() => _userName;
+        // Перевірка наявності збереженої авторизації
+        public bool IsAuthenticated() => !string.IsNullOrEmpty(GetToken());
+
+        public string GetToken() => Preferences.Default.Get(TokenKey, string.Empty);
+        public string GetUserName() => Preferences.Default.Get(UserNameKey, "Користувач");
+
+        private void ApplyAuthorizationHeader()
+        {
+            var token = GetToken();
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+        }
     }
 }
