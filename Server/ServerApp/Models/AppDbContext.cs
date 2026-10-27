@@ -51,7 +51,7 @@ namespace ServerApp.Models
 
             // Початкові тестові дані (Seed data)
             modelBuilder.Entity<Attendant>().HasData(
-                new Attendant { ID = 1, Name = "Sasha Petrenko", Email = "sasha@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." },
+                new Attendant { ID = 1, Name = "Sasha Yaschenko", Email = "sasha@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." },
                 new Attendant { ID = 2, Name = "Olena Koval", Email = "olena@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." },
                 new Attendant { ID = 3, Name = "Maksym Shevchenko", Email = "maksym@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." }
             );

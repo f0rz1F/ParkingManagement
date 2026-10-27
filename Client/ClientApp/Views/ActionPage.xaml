@@ -51,7 +51,6 @@
                     <!-- Кнопка створення бронювання -->
                     <Button Text="Підтвердити бронювання"
                             Command="{Binding MakeReservationCommand}"
-                            IsEnabled="{Binding IsBusy, Converter={x:Null}}"
                             BackgroundColor="#198754"
                             TextColor="White"
                             CornerRadius="10"

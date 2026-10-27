@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS Reservations (
 
 -- Працівники (пароль: Password123!, захешований через BCrypt)
 INSERT INTO Attendants (Name, Email, PasswordHash) VALUES
-('Sasha Petrenko', 'sasha@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.'),
+('Sasha Yaschenko', 'sasha@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.'),
 ('Olena Koval', 'olena@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.'),
 ('Maksym Shevchenko', 'maksym@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.');
 
