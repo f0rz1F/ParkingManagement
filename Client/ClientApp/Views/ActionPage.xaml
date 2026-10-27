@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClientApp.ViewModels"
+             x:Class="ClientApp.Views.ActionPage"
+             x:DataType="vm:ActionViewModel"
+             Title="Бронювання місця"
+             BackgroundColor="#f8fafc">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20" VerticalOptions="Center">
+
+            <!-- Заголовок сторінки -->
+            <Label Text="Підтвердження бронювання" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#1e293b" />
+            <Label Text="Створення нового запису в системі парковки" FontSize="13" TextColor="#64748b" HorizontalTextAlignment="Center" Margin="0,-12,0,8" />
+
+            <!-- Картка з інформацією про вибране місце -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="#e2e8f0" BackgroundColor="White" Padding="24">
+                <VerticalStackLayout Spacing="16">
+
+                    <!-- Бейдж номера місця -->
+                    <Border StrokeShape="RoundRectangle 12" BackgroundColor="#512BD4" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center">
+                        <Label Text="{Binding SelectedSpot.Number}" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    </Border>
+
+                    <Label Text="{Binding SelectedSpot.Number, StringFormat='Паркомісце № {0}'}" FontSize="18" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#1e293b" />
+
+                    <!-- Деталі місця -->
+                    <Border StrokeShape="RoundRectangle 8" Stroke="#f1f5f9" BackgroundColor="#f8fafc" Padding="14">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Label Grid.Column="0" Text="Поточний статус:" TextColor="#64748b" FontSize="13" />
+                                <Label Grid.Column="1" Text="{Binding SelectedSpot.DisplayStatus}" TextColor="{Binding SelectedSpot.StatusBadgeColor}" FontAttributes="Bold" FontSize="13" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding SelectedSpot.HasAttendant}">
+                                <Label Grid.Column="0" Text="Закріплений працівник:" TextColor="#64748b" FontSize="13" />
+                                <Label Grid.Column="1" Text="{Binding SelectedSpot.AttendantName}" TextColor="#1e293b" FontAttributes="Bold" FontSize="13" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Опис дії -->
+                    <Label Text="Після підтвердження на сервері буде створено нове активне бронювання для вашого облікового запису." FontSize="12" TextColor="#64748b" HorizontalTextAlignment="Center" />
+
+                    <!-- Повідомлення про стан виконання -->
+                    <Label Text="{Binding StatusMessage}" TextColor="#dc3545" FontSize="13" HorizontalTextAlignment="Center" />
+
+                    <!-- Індикатор завантаження -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#512BD4" HeightRequest="30" />
+
+                    <!-- Кнопка створення бронювання -->
+                    <Button Text="Підтвердити бронювання"
+                            Command="{Binding MakeReservationCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={x:Null}}"
+                            BackgroundColor="#198754"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="48"
+                            FontAttributes="Bold"
+                            FontSize="15" />
+
+                    <!-- Кнопка скасування -->
+                    <Button Text="Скасувати"
+                            Command="{Binding CancelCommand}"
+                            BackgroundColor="#e2e8f0"
+                            TextColor="#334155"
+                            CornerRadius="10"
+                            HeightRequest="44"
+                            FontAttributes="Bold"
+                            FontSize="14" />
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClientApp.ViewModels"
+             xmlns:models="clr-namespace:ClientApp.Models"
+             x:Class="ClientApp.Views.ItemsPage"
+             x:DataType="vm:ItemsViewModel"
+             Title="Паркомісця"
+             BackgroundColor="#f8fafc">
+
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- Верхня панель користувача -->
+        <Border Grid.Row="0" BackgroundColor="#512BD4" Padding="16,12" StrokeThickness="0">
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                    <Label Text="Система управління парковкою" TextColor="#d8b4fe" FontSize="11" />
+                    <Label Text="{Binding UserName}" TextColor="White" FontSize="16" FontAttributes="Bold" />
+                </VerticalStackLayout>
+                
+                <Button Grid.Column="1" Text="Вийти" Command="{Binding LogoutCommand}" BackgroundColor="#6d28d9" TextColor="White" FontSize="12" CornerRadius="8" HeightRequest="36" Padding="12,0" />
+            </Grid>
+        </Border>
+
+        <!-- Список паркомісць з оновленням -->
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadSpotsCommand}">
+            <ScrollView Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    
+                    <Label Text="Доступні паркувальні місця" FontSize="18" FontAttributes="Bold" TextColor="#1e293b" Margin="0,4,0,8" />
+
+                    <!-- Індикатор завантаження -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#512BD4" HeightRequest="30" />
+
+                    <!-- Повідомлення про порожній список -->
+                    <Label Text="{Binding EmptyMessage}" TextColor="#64748b" HorizontalTextAlignment="Center" Margin="0,20" />
+
+                    <!-- Список CollectionView -->
+                    <CollectionView ItemsSource="{Binding Spots}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:SpotItem">
+                                <Border Margin="0,0,0,10" StrokeShape="RoundRectangle 12" Stroke="#e2e8f0" BackgroundColor="{Binding CardBackgroundColor}" Padding="16">
+                                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12" VerticalOptions="Center">
+                                        
+                                        <!-- Номер місця -->
+                                        <Border Grid.Column="0" StrokeShape="RoundRectangle 8" BackgroundColor="#1e293b" WidthRequest="48" HeightRequest="48">
+                                            <Label Text="{Binding Number}" TextColor="White" FontAttributes="Bold" FontSize="18" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                        </Border>
+
+                                        <!-- Інформація про статус -->
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <Label Text="{Binding DisplayStatus}" TextColor="{Binding StatusBadgeColor}" FontAttributes="Bold" FontSize="14" />
+                                            <Label Text="{Binding AttendantName, StringFormat='Закріплено: {0}'}" IsVisible="{Binding HasAttendant}" FontSize="12" TextColor="#64748b" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Кнопка бронювання -->
+                                        <Button Grid.Column="2"
+                                                Text="Бронювати"
+                                                IsVisible="{Binding IsFree}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ItemsViewModel}}, Path=GoToReservationCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#512BD4"
+                                                TextColor="White"
+                                                CornerRadius="8"
+                                                HeightRequest="38"
+                                                Padding="12,0"
+                                                FontSize="13" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+        
+    </Grid>
+
+</ContentPage>

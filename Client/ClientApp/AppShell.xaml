@@ -3,12 +3,19 @@
     x:Class="ClientApp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:ClientApp"
-    Title="ClientApp">
+    xmlns:views="clr-namespace:ClientApp.Views"
+    Title="Parking Management">
 
+    <!-- Стартова сторінка входу в систему -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Вхід"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Route="LoginPage" />
+
+    <!-- Головна сторінка зі списком паркомісць -->
+    <ShellContent
+        Title="Паркомісця"
+        ContentTemplate="{DataTemplate views:ItemsPage}"
+        Route="ItemsPage" />
 
 </Shell>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClientApp.ViewModels"
+             x:Class="ClientApp.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#f1f5f9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            
+            <!-- Заголовок та іконка -->
+            <Border StrokeShape="RoundRectangle 24" BackgroundColor="#512BD4" WidthRequest="80" HeightRequest="80" HorizontalOptions="Center">
+                <Label Text="P" TextColor="White" FontSize="38" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+            </Border>
+
+            <Label Text="Система парковки" FontSize="26" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#1e293b" />
+            <Label Text="Вхід для працівників (.NET MAUI)" FontSize="14" TextColor="#64748b" HorizontalTextAlignment="Center" Margin="0,-10,0,10" />
+
+            <!-- Картка з формою логіну -->
+            <Border StrokeShape="RoundRectangle 16" Stroke="#e2e8f0" BackgroundColor="White" Padding="24">
+                <VerticalStackLayout Spacing="16">
+                    
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Електронна пошта" FontSize="13" FontAttributes="Bold" TextColor="#334155" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="#cbd5e1" BackgroundColor="#f8fafc" Padding="12,0">
+                            <Entry Text="{Binding Email}" Placeholder="ivan@parking.com" Keyboard="Email" ReturnType="Next" TextColor="#1e293b" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Пароль" FontSize="13" FontAttributes="Bold" TextColor="#334155" />
+                        <Border StrokeShape="RoundRectangle 8" Stroke="#cbd5e1" BackgroundColor="#f8fafc" Padding="12,0">
+                            <Entry Text="{Binding Password}" Placeholder="Введіть пароль" IsPassword="True" ReturnType="Done" TextColor="#1e293b" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Повідомлення про помилку -->
+                    <Label Text="{Binding ErrorMessage}" TextColor="#dc3545" FontSize="13" HorizontalTextAlignment="Center" />
+
+                    <!-- Індикатор завантаження -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#512BD4" HeightRequest="30" />
+
+                    <!-- Кнопка входу -->
+                    <Button Text="Увійти до системи" Command="{Binding LoginCommand}" BackgroundColor="#512BD4" TextColor="White" CornerRadius="10" HeightRequest="48" FontAttributes="Bold" FontSize="15" />
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Підказка для тестування -->
+            <Label Text="Тестові дані: ivan@parking.com / Password123!" FontSize="12" TextColor="#94a3b8" HorizontalTextAlignment="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
