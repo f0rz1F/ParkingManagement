@@ -48,11 +48,11 @@ CREATE TABLE IF NOT EXISTS Reservations (
 
 -- Тестові дані
 
--- Працівники (пароль: Password123!)
+-- Працівники (пароль: Password123!, захешований через BCrypt)
 INSERT INTO Attendants (Name, Email, PasswordHash) VALUES
-('Ivan Petrenko', 'ivan@parking.com', 'AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=='),
-('Olena Koval', 'olena@parking.com', 'AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=='),
-('Maksym Shevchenko', 'maksym@parking.com', 'AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==');
+('Sasha Petrenko', 'sasha@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.'),
+('Olena Koval', 'olena@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.'),
+('Maksym Shevchenko', 'maksym@parking.com', '$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd.');
 
 -- Паркувальні місця
 INSERT INTO ParkingSpots (Number, Status, UserID) VALUES

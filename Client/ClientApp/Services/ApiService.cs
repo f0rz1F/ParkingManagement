@@ -60,21 +60,35 @@ namespace ClientApp.Services
         }
 
         // Отримання списку всіх паркомісць (GET: /api/items)
-        public async Task<List<SpotItem>> GetSpotsAsync()
+        public async Task<(List<SpotItem> Spots, string? ErrorMessage)> GetSpotsAsync()
         {
             ApplyAuthorizationHeader();
             try
             {
-                var spots = await _httpClient.GetFromJsonAsync<List<SpotItem>>("/api/items", new JsonSerializerOptions
+                var response = await _httpClient.GetAsync("/api/items");
+
+                // Перевірка протермінованого або відсутнього токена (401)
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    Logout();
+                    return (new List<SpotItem>(), "Термін дії сесії вичерпано. Будь ласка, увійдіть знову.");
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return (new List<SpotItem>(), $"Помилка сервера: {(int)response.StatusCode}");
+                }
+
+                var spots = await response.Content.ReadFromJsonAsync<List<SpotItem>>(new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
 
-                return spots ?? new List<SpotItem>();
+                return (spots ?? new List<SpotItem>(), null);
             }
-            catch
+            catch (Exception ex)
             {
-                return new List<SpotItem>();
+                return (new List<SpotItem>(), $"Помилка з'єднання із сервером: {ex.Message}");
             }
         }
 

@@ -51,9 +51,9 @@ namespace ServerApp.Models
 
             // Початкові тестові дані (Seed data)
             modelBuilder.Entity<Attendant>().HasData(
-                new Attendant { ID = 1, Name = "Ivan Petrenko", Email = "ivan@parking.com", PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==" },
-                new Attendant { ID = 2, Name = "Olena Koval", Email = "olena@parking.com", PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==" },
-                new Attendant { ID = 3, Name = "Maksym Shevchenko", Email = "maksym@parking.com", PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==" }
+                new Attendant { ID = 1, Name = "Sasha Petrenko", Email = "sasha@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." },
+                new Attendant { ID = 2, Name = "Olena Koval", Email = "olena@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." },
+                new Attendant { ID = 3, Name = "Maksym Shevchenko", Email = "maksym@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." }
             );
 
             modelBuilder.Entity<ParkingSpot>().HasData(

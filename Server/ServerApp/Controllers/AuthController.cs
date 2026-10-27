@@ -120,7 +120,7 @@ namespace ServerApp.Controllers
             return RedirectToAction("Login");
         }
 
-        // Перевірка відповідності пароля його хешу (підтримка BCrypt, SHA-256 та тестових даних)
+        // Перевірка відповідності пароля його BCrypt хешу
         private static bool VerifyPassword(string enteredPassword, string storedHash)
         {
             if (string.IsNullOrEmpty(storedHash))
@@ -128,37 +128,14 @@ namespace ServerApp.Controllers
                 return false;
             }
 
-            // Перевірка через BCrypt (якщо хеш створений за стандартом BCrypt)
-            if (storedHash.StartsWith("$2a$") || storedHash.StartsWith("$2b$") || storedHash.StartsWith("$2y$"))
+            try
             {
-                try
-                {
-                    return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
-                }
-                catch
-                {
-                    // Ігноруємо помилки парсингу некоректного хешу
-                }
+                return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
             }
-
-            // Підтримка стандартного паролю за замовчуванням для початкових тестових даних
-            if (storedHash == "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA==")
+            catch
             {
-                if (enteredPassword == "Password123!" || enteredPassword == "AdminPassword123!")
-                {
-                    return true;
-                }
+                return false;
             }
-
-            // Перевірка через SHA-256 (паролі, створені через веб-адмінку)
-            var sha256Hash = Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(enteredPassword)));
-            if (storedHash == sha256Hash)
-            {
-                return true;
-            }
-
-            // Пряме порівняння відкритим текстом (для сумісності)
-            return enteredPassword == storedHash;
         }
 
         // Генерація JWT-токена з цифровим підписом

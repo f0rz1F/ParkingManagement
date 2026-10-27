@@ -42,7 +42,22 @@ namespace ClientApp.ViewModels
 
             try
             {
-                var list = await _apiService.GetSpotsAsync();
+                var (list, errorMessage) = await _apiService.GetSpotsAsync();
+
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    Spots.Clear();
+                    EmptyMessage = errorMessage;
+
+                    // Повернення до вікна логіну при втраті сесії
+                    if (!_apiService.IsAuthenticated())
+                    {
+                        await Shell.Current.DisplayAlert("Авторизація", errorMessage, "OK");
+                        await Shell.Current.GoToAsync("//LoginPage");
+                    }
+                    return;
+                }
+
                 Spots.Clear();
                 foreach (var spot in list)
                 {

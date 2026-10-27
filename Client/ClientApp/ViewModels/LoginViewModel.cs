@@ -10,7 +10,7 @@ namespace ClientApp.ViewModels
         private readonly ApiService _apiService;
 
         [ObservableProperty]
-        private string email = "ivan@parking.com";
+        private string email = "sasha@parking.com";
 
         [ObservableProperty]
         private string password = "Password123!";

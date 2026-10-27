@@ -54,10 +54,9 @@ namespace ServerApp.Controllers
                     return View(attendant);
                 }
 
-                // Запис хешу пароля (якщо не вказано — встановлення стандартного)
-                attendant.PasswordHash = string.IsNullOrWhiteSpace(password)
-                    ? "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=="
-                    : Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(password)));
+                // Запис хешу пароля через BCrypt
+                var rawPassword = string.IsNullOrWhiteSpace(password) ? "Password123!" : password;
+                attendant.PasswordHash = BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
                 _context.Add(attendant);
                 await _context.SaveChangesAsync();
@@ -116,10 +115,10 @@ namespace ServerApp.Controllers
                 existing.Name = attendant.Name;
                 existing.Email = attendant.Email;
 
-                // Оновлення пароля за наявності нового значення
+                // Оновлення пароля за наявності нового значення через BCrypt
                 if (!string.IsNullOrWhiteSpace(newPassword))
                 {
-                    existing.PasswordHash = Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(newPassword)));
+                    existing.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
                 }
 
                 try
