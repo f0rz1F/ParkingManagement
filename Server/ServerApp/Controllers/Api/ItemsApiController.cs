@@ -25,6 +25,7 @@ namespace ServerApp.Controllers.Api
         public async Task<ActionResult<IEnumerable<SpotDto>>> GetSpots([FromQuery] bool? freeOnly)
         {
             var query = _context.ParkingSpots
+                .AsNoTracking()
                 .Include(s => s.Attendant)
                 .AsQueryable();
 

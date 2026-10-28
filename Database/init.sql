@@ -46,6 +46,13 @@ CREATE TABLE IF NOT EXISTS Reservations (
     FOREIGN KEY (SpotID) REFERENCES ParkingSpots(ID)
 );
 
+-- Індекси для оптимізації запитів (Лабораторна 11)
+CREATE UNIQUE INDEX IF NOT EXISTS IX_Attendants_Email ON Attendants(Email);
+CREATE INDEX IF NOT EXISTS IX_ParkingSpots_UserID ON ParkingSpots(UserID);
+CREATE INDEX IF NOT EXISTS IX_Reservations_AttendantID ON Reservations(AttendantID);
+CREATE INDEX IF NOT EXISTS IX_Reservations_SpotID ON Reservations(SpotID);
+CREATE INDEX IF NOT EXISTS IX_Reservations_Status ON Reservations(Status);
+
 -- Тестові дані
 
 -- Працівники (пароль: Password123!, захешований через BCrypt)

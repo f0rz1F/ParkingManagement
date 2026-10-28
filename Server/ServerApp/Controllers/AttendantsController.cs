@@ -22,6 +22,7 @@ namespace ServerApp.Controllers
         public async Task<IActionResult> Index()
         {
             var attendants = await _context.Attendants
+                .AsNoTracking()
                 .Include(a => a.ParkingSpots)
                 .Include(a => a.Reservations)
                 .ToListAsync();

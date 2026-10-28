@@ -49,6 +49,23 @@ namespace ServerApp.Models
                 .HasForeignKey(r => r.SpotID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Індекси таблиць для оптимізації запитів (Лабораторна 11)
+            modelBuilder.Entity<Attendant>()
+                .HasIndex(a => a.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<ParkingSpot>()
+                .HasIndex(p => p.UserID);
+
+            modelBuilder.Entity<Reservation>()
+                .HasIndex(r => r.AttendantID);
+
+            modelBuilder.Entity<Reservation>()
+                .HasIndex(r => r.SpotID);
+
+            modelBuilder.Entity<Reservation>()
+                .HasIndex(r => r.Status);
+
             // Початкові тестові дані (Seed data)
             modelBuilder.Entity<Attendant>().HasData(
                 new Attendant { ID = 1, Name = "Sasha Yaschenko", Email = "sasha@parking.com", PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd." },

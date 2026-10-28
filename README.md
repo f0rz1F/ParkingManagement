@@ -1,38 +1,97 @@
-ParkingManagement
-Система для управління Attendants, ParkingSpots, Reservations з MVC-адмін-панеллю та MAUI-застосунком.
+# ParkingManagement — Система управління паркувальними місцями
 
-Предметна область: система управління парковкою (варіант 4).
-Таблиці:
-- Attendants (Users) - працівники парковки
-- ParkingSpots (Items) - паркувальні місця
-- Reservations (Actions) - бронювання місць
+Навчальний проект курсу з розробки програмного забезпечення на платформі .NET 8 (Варіант 4).
 
-Структура проекту
+Проект складається з серверної частини на **ASP.NET Core** (MVC адмін-панель + REST API) та клієнтського мультиплатформного застосунку на **.NET MAUI** з патерном **MVVM**.
 
-- Database - схема бази даних init.sql
-- Server/ServerApp - серверна частина (ASP.NET Core, .NET 8, EF Core SQLite)
-- Client/ClientApp - клієнтська частина (.NET MAUI, .NET 8)
-  - ViewModels - папка для моделей представлення (MVVM)
+---
 
-Інструкція по запуску
+## 📋 Предметна область (Варіант 4)
 
-Вимоги:
-- Visual Studio
-- .NET 8 SDK
-- Workloads: ASP.NET and web development, .NET MAUI
+Система автоматизації управління паркувальними місцями та обліку бронювань:
+* **Attendants (Users)** — працівники парковки (`ID`, `Name`, `Email`, `PasswordHash`).
+* **ParkingSpots (Items)** — паркувальні місця (`ID`, `Number`, `Status` [`Free`/`Occupied`], `UserID`).
+* **Reservations (Actions)** — бронювання місць (`ID`, `AttendantID`, `SpotID`, `ReservationDate`, `Status` [`Active`/`Cancelled`]).
 
-Запуск серверної частини:
-1. Скопіювати файл налаштувань:
-   Скопіювати Server/ServerApp/appsettings.example.json як Server/ServerApp/appsettings.json
-2. Застосувати міграції для створення бази даних SQLite:
-   dotnet ef database update --project Server/ServerApp/ServerApp.csproj
-   (створиться файл бази parking.db з початковими тестовими даними)
-3. Запустити сервер:
-   dotnet run --project Server/ServerApp/ServerApp.csproj
-   Після запуску доступна сторінка входу (/auth/login) та повноцінна MVC адмін-панель (/admin) для керування працівниками, місцями та бронюваннями (CRUD).
-   Облікові дані адміністратора: admin@parking.com / AdminPassword123!
+### Сценарій використання:
+1. **Адміністратор** через веб-інтерфейс (MVC адмін-панель) здійснює повне керування обліковими записами працівників, паркомісцями та журналом бронювань (CRUD).
+2. **Працівник (Sasha Yaschenko)** через мобільний або десктопний застосунок (.NET MAUI) авторизується за допомогою JWT, переглядає стан паркомісць у реальному часі, бронює вільні місця та за потреби скасовує власні бронювання.
 
-Запуск клієнтської частини:
-1. Відкрити Client/ClientApp/ClientApp.csproj у Visual Studio
-2. Обрати цільовий пристрій (Android Emulator або Windows Machine)
-3. Запустити проект через F5
+---
+
+## 🏛️ Архітектура проекту
+
+* **Сервер (`Server/ServerApp`):**
+  * **ASP.NET Core (.NET 8)** з підтримкою MVC та REST API.
+  * **Entity Framework Core (SQLite)** — об'єктно-реляційне відображення, міграції та оптимізовані індекси.
+  * **Безпека:** надійне хешування паролів за стандартом **BCrypt**, автентифікація через **JWT (JSON Web Token)** із ролями `Admin` та `User`.
+  * **Документація:** інтерактивний **Swagger UI** (`/swagger`).
+* **Клієнт (`Client/ClientApp`):**
+  * **.NET MAUI** (підтримка Windows та Android).
+  * Архітектурний патерн **MVVM** на базі бібліотеки `CommunityToolkit.Mvvm`.
+  * Взаємодія з сервером через клієнт `HttpClient` у сервісі `ApiService`.
+  * Локальне збереження токена сесії в захищеному сховищі `Preferences`.
+* **База даних (`Database/` та `Server/ServerApp/parking.db`):**
+  * Реляційна СУБД SQLite з налаштованими зовнішніми ключами (Foreign Keys) та індексами для прискорення вибірок.
+* **Документація та тести (`Docs/`, `Tests/`):**
+  * `Docs/swagger.json` — експорт OpenAPI-специфікації REST API.
+  * `Docs/init.sql` — повний DDL-скрипт бази даних з індексами та тестовими даними.
+  * `Docs/TESTING.md` — детальний звіт результатів тестування.
+  * `Tests/test_system.py` — автоматизований скрипт наскрізного тестування.
+
+---
+
+## 🔑 Облікові дані для тестування
+
+| Роль | Інтерфейс | Email / Логін | Пароль |
+|---|---|---|---|
+| **Адміністратор** | Веб-адмінка (`/auth/login`) | `admin@parking.com` | `AdminPassword123!` |
+| **Працівник** | MAUI клієнт та API | `sasha@parking.com` | `Password123!` |
+| **Працівник 2** | API тестування | `olena@parking.com` | `Password123!` |
+| **Працівник 3** | API тестування | `maksym@parking.com` | `Password123!` |
+
+---
+
+## 🌐 Специфікація REST API
+
+| Метод | Маршрут | Опис | Авторизація |
+|---|---|---|:---:|
+| `POST` | `/api/auth/login` | Аутентифікація працівника та видача JWT-токена | Публічний |
+| `GET` | `/api/items` (або `/api/spots`) | Отримання списку всіх паркомісць та їх статусів | Bearer JWT |
+| `GET` | `/api/items/{id}` | Отримання детальної інформації про одне місце | Bearer JWT |
+| `GET` | `/api/actions` | Отримання списку бронювань поточного користувача | Bearer JWT |
+| `POST` | `/api/actions` | Створення нового бронювання вільного паркомісця | Bearer JWT |
+| `DELETE`| `/api/actions/{spotId}` | Скасування бронювання та звільнення паркомісця | Bearer JWT |
+| `GET` | `/swagger` | Інтерактивна веб-документація Swagger UI | Публічний |
+
+---
+
+## 🚀 Інструкція із запуску
+
+### Системні вимоги:
+* **Visual Studio 2022** або **.NET 8 SDK** (версія 8.0.x).
+* Встановлені робочі навантаження: *ASP.NET and web development*, *.NET MAUI development*.
+
+### 1. Запуск серверної частини:
+```powershell
+cd Server/ServerApp
+dotnet run
+```
+* Веб-інтерфейс адміністратора: 👉 `http://localhost:5088/auth/login`
+* Документація Swagger: 👉 `http://localhost:5088/swagger`
+
+### 2. Запуск клієнтського MAUI-додатку:
+* **На Windows**:
+  ```powershell
+  dotnet build -f net8.0-windows10.0.19041.0 Client/ClientApp/ClientApp.csproj
+  ```
+  *(Або оберіть `ClientApp` як стартовий проєкт у Visual Studio та натисніть F5).*
+* **На Android емуляторі**:
+  * Запустіть емулятор у Visual Studio та оберіть профіль Android. Клієнт автоматично використовує адресу `http://10.0.2.2:5088` з увімкненим дозволом `usesCleartextTraffic`.
+
+### 3. Запуск автоматичних інтеграційних тестів:
+При запущеному сервері виконайте:
+```powershell
+python Tests/test_system.py
+```
+Всі 9 тестів перевірять веб-вхід, захист `[Authorize]`, BCrypt хешування, отримання списків, створення та скасування бронювань.

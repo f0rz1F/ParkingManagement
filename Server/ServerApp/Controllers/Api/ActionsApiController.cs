@@ -30,6 +30,7 @@ namespace ServerApp.Controllers.Api
             var isAdmin = User.IsInRole("Admin");
 
             var query = _context.Reservations
+                .AsNoTracking()
                 .Include(r => r.ParkingSpot)
                 .Include(r => r.Attendant)
                 .AsQueryable();

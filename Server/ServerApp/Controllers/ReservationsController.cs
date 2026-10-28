@@ -23,6 +23,7 @@ namespace ServerApp.Controllers
         public async Task<IActionResult> Index()
         {
             var reservations = await _context.Reservations
+                .AsNoTracking()
                 .Include(r => r.Attendant)
                 .Include(r => r.ParkingSpot)
                 .OrderByDescending(r => r.ReservationDate)
