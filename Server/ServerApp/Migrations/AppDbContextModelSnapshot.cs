@@ -48,23 +48,23 @@ namespace ServerApp.Migrations
                         new
                         {
                             ID = 1,
-                            Email = "ivan@parking.com",
-                            Name = "Ivan Petrenko",
-                            PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=="
+                            Email = "sasha@parking.com",
+                            Name = "Sasha Yaschenko",
+                            PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd."
                         },
                         new
                         {
                             ID = 2,
                             Email = "olena@parking.com",
                             Name = "Olena Koval",
-                            PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=="
+                            PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd."
                         },
                         new
                         {
                             ID = 3,
                             Email = "maksym@parking.com",
                             Name = "Maksym Shevchenko",
-                            PasswordHash = "AQAAAAIAAYagAAAAELkR+DH3s1xMKYGJqo5MhFP1x2a4Bz5KJ2E6TQKZ8cO0vH1nV+uLz0E6vPxjG0YRA=="
+                            PasswordHash = "$2a$11$BM8YzTfkyS/y.TmUYpQDaedXe5i8VV9DXgAP2tokr3X.QAKZ83Xd."
                         });
                 });
 
@@ -185,6 +185,8 @@ namespace ServerApp.Migrations
                     b.HasIndex("AttendantID");
 
                     b.HasIndex("SpotID");
+
+                    b.HasIndex("Status");
 
                     b.ToTable("Reservations");
 

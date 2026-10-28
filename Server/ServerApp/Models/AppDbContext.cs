@@ -50,10 +50,6 @@ namespace ServerApp.Models
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Індекси таблиць для оптимізації запитів (Лабораторна 11)
-            modelBuilder.Entity<Attendant>()
-                .HasIndex(a => a.Email)
-                .IsUnique();
-
             modelBuilder.Entity<ParkingSpot>()
                 .HasIndex(p => p.UserID);
 

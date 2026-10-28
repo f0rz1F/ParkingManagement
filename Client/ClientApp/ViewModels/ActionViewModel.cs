@@ -39,6 +39,7 @@ namespace ClientApp.ViewModels
                 var (success, message) = await _apiService.CreateReservationAsync(SelectedSpot.ID);
                 if (success)
                 {
+                    ItemsViewModel.InvalidateCache();
                     await Shell.Current.DisplayAlert("Успіх", $"Місце № {SelectedSpot.Number} успішно заброньовано!", "OK");
                     // Повернення до списку місць
                     await Shell.Current.GoToAsync("..");

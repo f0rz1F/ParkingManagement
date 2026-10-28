@@ -13,6 +13,17 @@ namespace ClientApp.ViewModels
 
         public ObservableCollection<SpotItem> Spots { get; } = new();
 
+        // Кешування даних у пам'яті клієнта для оптимізації повторних переходів (Лабораторна 11)
+        private static List<SpotItem>? _cachedSpots;
+        private static DateTime _cacheExpiration = DateTime.MinValue;
+        private static readonly TimeSpan _cacheDuration = TimeSpan.FromSeconds(30);
+
+        public static void InvalidateCache()
+        {
+            _cachedSpots = null;
+            _cacheExpiration = DateTime.MinValue;
+        }
+
         [ObservableProperty]
         private bool isBusy;
 
@@ -30,15 +41,29 @@ namespace ClientApp.ViewModels
             _apiService = apiService;
         }
 
-        // Завантаження списку паркомісць із сервера
+        // Завантаження списку паркомісць із сервера (з використанням кешу)
         [RelayCommand]
         public async Task LoadSpotsAsync()
         {
             if (IsBusy) return;
 
+            UserName = _apiService.GetUserName();
+
+            // Перевірка наявності валідного кешу (якщо не було жесту pull-to-refresh)
+            if (!IsRefreshing && _cachedSpots != null && DateTime.UtcNow < _cacheExpiration)
+            {
+                var currentUserId = _apiService.GetUserId();
+                Spots.Clear();
+                foreach (var spot in _cachedSpots)
+                {
+                    spot.IsMine = (spot.UserID.HasValue && spot.UserID.Value == currentUserId);
+                    Spots.Add(spot);
+                }
+                return;
+            }
+
             IsBusy = true;
             EmptyMessage = string.Empty;
-            UserName = _apiService.GetUserName();
 
             try
             {
@@ -57,6 +82,10 @@ namespace ClientApp.ViewModels
                     }
                     return;
                 }
+
+                // Збереження в кеш клієнта
+                _cachedSpots = list;
+                _cacheExpiration = DateTime.UtcNow.Add(_cacheDuration);
 
                 var myUserId = _apiService.GetUserId();
                 Spots.Clear();
@@ -93,6 +122,7 @@ namespace ClientApp.ViewModels
                 var (success, message) = await _apiService.CancelReservationAsync(spot.ID);
                 if (success)
                 {
+                    InvalidateCache();
                     await Shell.Current.DisplayAlert("Успіх", message, "OK");
                     await LoadSpotsAsync();
                 }
