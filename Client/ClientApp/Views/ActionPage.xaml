@@ -5,54 +5,54 @@
              x:Class="ClientApp.Views.ActionPage"
              x:DataType="vm:ActionViewModel"
              Title="Бронювання місця"
-             BackgroundColor="#f8fafc">
+             BackgroundColor="{StaticResource AppBackground}">
 
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="20" VerticalOptions="Center">
 
             <!-- Заголовок сторінки -->
-            <Label Text="Підтвердження бронювання" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#1e293b" />
-            <Label Text="Створення нового запису в системі парковки" FontSize="13" TextColor="#64748b" HorizontalTextAlignment="Center" Margin="0,-12,0,8" />
+            <Label Text="Підтвердження бронювання" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="{StaticResource TextPrimary}" />
+            <Label Text="Створення нового запису в системі парковки" FontSize="13" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" Margin="0,-12,0,8" />
 
             <!-- Картка з інформацією про вибране місце -->
-            <Border StrokeShape="RoundRectangle 16" Stroke="#e2e8f0" BackgroundColor="White" Padding="24">
+            <Border StrokeShape="RoundRectangle 16" Stroke="{StaticResource BorderColor}" BackgroundColor="{StaticResource Surface}" Padding="24">
                 <VerticalStackLayout Spacing="16">
 
                     <!-- Бейдж номера місця -->
-                    <Border StrokeShape="RoundRectangle 12" BackgroundColor="#512BD4" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center">
-                        <Label Text="{Binding SelectedSpot.Number}" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    <Border StrokeShape="RoundRectangle 12" BackgroundColor="{StaticResource AccentBg}" WidthRequest="72" HeightRequest="72" HorizontalOptions="Center">
+                        <Label Text="{Binding SelectedSpot.Number}" TextColor="{StaticResource AccentText}" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                     </Border>
 
-                    <Label Text="{Binding SelectedSpot.Number, StringFormat='Паркомісце № {0}'}" FontSize="18" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#1e293b" />
+                    <Label Text="{Binding SelectedSpot.Number, StringFormat='Паркомісце № {0}'}" FontSize="18" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="{StaticResource TextPrimary}" />
 
                     <!-- Деталі місця -->
-                    <Border StrokeShape="RoundRectangle 8" Stroke="#f1f5f9" BackgroundColor="#f8fafc" Padding="14">
+                    <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource BorderColor}" BackgroundColor="{StaticResource Surface2}" Padding="14">
                         <VerticalStackLayout Spacing="8">
                             <Grid ColumnDefinitions="*, Auto">
-                                <Label Grid.Column="0" Text="Поточний статус:" TextColor="#64748b" FontSize="13" />
+                                <Label Grid.Column="0" Text="Поточний статус:" TextColor="{StaticResource TextSecondary}" FontSize="13" />
                                 <Label Grid.Column="1" Text="{Binding SelectedSpot.DisplayStatus}" TextColor="{Binding SelectedSpot.StatusBadgeColor}" FontAttributes="Bold" FontSize="13" />
                             </Grid>
                             <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding SelectedSpot.HasAttendant}">
-                                <Label Grid.Column="0" Text="Закріплений працівник:" TextColor="#64748b" FontSize="13" />
-                                <Label Grid.Column="1" Text="{Binding SelectedSpot.AttendantName}" TextColor="#1e293b" FontAttributes="Bold" FontSize="13" />
+                                <Label Grid.Column="0" Text="Закріплений працівник:" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                                <Label Grid.Column="1" Text="{Binding SelectedSpot.AttendantName}" TextColor="{StaticResource TextPrimary}" FontAttributes="Bold" FontSize="13" />
                             </Grid>
                         </VerticalStackLayout>
                     </Border>
 
                     <!-- Опис дії -->
-                    <Label Text="Після підтвердження на сервері буде створено нове активне бронювання для вашого облікового запису." FontSize="12" TextColor="#64748b" HorizontalTextAlignment="Center" />
+                    <Label Text="Після підтвердження на сервері буде створено нове активне бронювання для вашого облікового запису." FontSize="12" TextColor="{StaticResource TextSecondary}" HorizontalTextAlignment="Center" />
 
                     <!-- Повідомлення про стан виконання -->
-                    <Label Text="{Binding StatusMessage}" TextColor="#dc3545" FontSize="13" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding StatusMessage}" TextColor="{StaticResource DangerColor}" FontSize="13" HorizontalTextAlignment="Center" />
 
                     <!-- Індикатор завантаження -->
-                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#512BD4" HeightRequest="30" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource TextPrimary}" HeightRequest="30" />
 
                     <!-- Кнопка створення бронювання -->
                     <Button Text="Підтвердити бронювання"
                             Command="{Binding MakeReservationCommand}"
-                            BackgroundColor="#198754"
-                            TextColor="White"
+                            BackgroundColor="{StaticResource AccentBg}"
+                            TextColor="{StaticResource AccentText}"
                             CornerRadius="10"
                             HeightRequest="48"
                             FontAttributes="Bold"
@@ -61,8 +61,10 @@
                     <!-- Кнопка скасування -->
                     <Button Text="Скасувати"
                             Command="{Binding CancelCommand}"
-                            BackgroundColor="#e2e8f0"
-                            TextColor="#334155"
+                            BackgroundColor="{StaticResource Surface3}"
+                            TextColor="{StaticResource TextPrimary}"
+                            BorderColor="{StaticResource InputBorder}"
+                            BorderWidth="1"
                             CornerRadius="10"
                             HeightRequest="44"
                             FontAttributes="Bold"

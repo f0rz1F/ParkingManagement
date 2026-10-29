@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServerApp.Models;
 using ServerApp.Models.DTOs;
+using ServerApp.Services;
 
 namespace ServerApp.Controllers.Api
 {
@@ -67,35 +68,11 @@ namespace ServerApp.Controllers.Api
                 return BadRequest(new { message = "Некоректний ідентифікатор паркомісця" });
             }
 
-            // Перевірка існування паркомісця
-            var spot = await _context.ParkingSpots.FindAsync(dto.SpotID);
-            if (spot == null)
-            {
-                return NotFound(new { message = "Паркувальне місце не знайдено" });
-            }
-
-            // Перевірка, чи вільне місце
-            if (spot.Status != "Free")
-            {
-                return BadRequest(new { message = "Це паркувальне місце вже зайняте" });
-            }
-
-            // Визначення ID працівника з токена авторизації
+            // Бронювати можуть лише працівники (у токені адміністратора немає ID працівника)
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int attendantId;
-            if (int.TryParse(userIdString, out var parsedId))
+            if (!int.TryParse(userIdString, out var attendantId) || attendantId <= 0)
             {
-                attendantId = parsedId;
-            }
-            else
-            {
-                // Якщо токен адміністратора, прив'язуємо до першого працівника для збереження цілісності
-                var firstAttendant = await _context.Attendants.FirstOrDefaultAsync();
-                if (firstAttendant == null)
-                {
-                    return BadRequest(new { message = "В системі відсутні зареєстровані працівники" });
-                }
-                attendantId = firstAttendant.ID;
+                return BadRequest(new { message = "Бронювати місця через API можуть лише працівники" });
             }
 
             var attendant = await _context.Attendants.FindAsync(attendantId);
@@ -104,22 +81,40 @@ namespace ServerApp.Controllers.Api
                 return BadRequest(new { message = "Користувача не знайдено" });
             }
 
+            // Перевірка існування паркомісця
+            var spot = await _context.ParkingSpots.AsNoTracking().FirstOrDefaultAsync(s => s.ID == dto.SpotID);
+            if (spot == null)
+            {
+                return NotFound(new { message = "Паркувальне місце не знайдено" });
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            // Атомарне захоплення місця: оновлення спрацює лише якщо місце ще вільне.
+            // Якщо двоє натиснуть "Бронювати" одночасно, другий отримає 0 оновлених рядків.
+            var captured = await _context.ParkingSpots
+                .Where(s => s.ID == dto.SpotID && s.Status == SpotStateSync.SpotFree)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(s => s.Status, SpotStateSync.SpotOccupied)
+                    .SetProperty(s => s.UserID, (int?)attendant.ID));
+
+            if (captured == 0)
+            {
+                return BadRequest(new { message = "Це паркувальне місце вже зайняте" });
+            }
+
             // Створення запису бронювання
             var reservation = new Reservation
             {
                 SpotID = spot.ID,
                 AttendantID = attendant.ID,
                 ReservationDate = DateTime.Now,
-                Status = "Active"
+                Status = SpotStateSync.ReservationActive
             };
 
-            // Оновлення статусу місця
-            spot.Status = "Occupied";
-            spot.UserID = attendant.ID;
-
             _context.Reservations.Add(reservation);
-            _context.ParkingSpots.Update(spot);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             var resultDto = new ReservationDto
             {
@@ -153,27 +148,27 @@ namespace ServerApp.Controllers.Api
             // Перевіряємо, чи має право користувач звільнити місце
             if (!isAdmin && spot.UserID != currentUserId)
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "Ви можете скасувати лише власне бронювання" });
             }
 
-            // Оновлення статусу активного бронювання на Cancelled
-            var activeReservation = await _context.Reservations
-                .Where(r => r.SpotID == spotId && r.Status == "Active")
-                .OrderByDescending(r => r.ReservationDate)
-                .FirstOrDefaultAsync();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (activeReservation != null)
+            // Скасування всіх активних бронювань цього місця
+            var activeReservations = await _context.Reservations
+                .Where(r => r.SpotID == spotId && r.Status == SpotStateSync.ReservationActive)
+                .ToListAsync();
+
+            foreach (var reservation in activeReservations)
             {
-                activeReservation.Status = "Cancelled";
-                _context.Reservations.Update(activeReservation);
+                reservation.Status = SpotStateSync.ReservationCancelled;
             }
-
-            // Звільнення місця
-            spot.Status = "Free";
-            spot.UserID = null;
-            _context.ParkingSpots.Update(spot);
-
             await _context.SaveChangesAsync();
+
+            // Звільнення місця (перерахунок з бронювань)
+            await SpotStateSync.SyncAsync(_context, spotId);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
             return Ok(new { message = "Бронювання успішно скасовано, місце звільнено" });
         }
     }

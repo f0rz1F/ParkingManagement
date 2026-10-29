@@ -107,7 +107,7 @@ namespace ClientApp.Services
                 }
 
                 var errorText = await response.Content.ReadAsStringAsync();
-                return (false, string.IsNullOrEmpty(errorText) ? "Не вдалося забронювати місце" : errorText);
+                return (false, ExtractErrorMessage(errorText, "Не вдалося забронювати місце"));
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace ClientApp.Services
                 }
 
                 var errorText = await response.Content.ReadAsStringAsync();
-                return (false, string.IsNullOrEmpty(errorText) ? "Не вдалося скасувати бронювання" : errorText);
+                return (false, ExtractErrorMessage(errorText, "Не вдалося скасувати бронювання"));
             }
             catch (Exception ex)
             {
@@ -152,6 +152,32 @@ namespace ClientApp.Services
         public string GetToken() => Preferences.Default.Get(TokenKey, string.Empty);
         public string GetUserName() => Preferences.Default.Get(UserNameKey, "Користувач");
         public int GetUserId() => Preferences.Default.Get(UserIdKey, 0);
+
+        // Витяг тексту помилки з відповіді сервера {"message": "..."} замість показу сирого JSON
+        private static string ExtractErrorMessage(string responseText, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(responseText))
+            {
+                return fallback;
+            }
+
+            try
+            {
+                using var document = JsonDocument.Parse(responseText);
+                if (document.RootElement.ValueKind == JsonValueKind.Object &&
+                    document.RootElement.TryGetProperty("message", out var messageElement) &&
+                    messageElement.ValueKind == JsonValueKind.String)
+                {
+                    return messageElement.GetString() ?? fallback;
+                }
+            }
+            catch (JsonException)
+            {
+                // Відповідь не JSON — повертаємо загальний текст
+            }
+
+            return fallback;
+        }
 
         private void ApplyAuthorizationHeader()
         {

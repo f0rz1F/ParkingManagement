@@ -1,16 +1,32 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <Color x:Key="Primary">#FFFFFF</Color>
+    <Color x:Key="PrimaryDark">#FFFFFF</Color>
+    <Color x:Key="PrimaryDarkText">#000000</Color>
+    <Color x:Key="Secondary">#2A2A2A</Color>
+    <Color x:Key="SecondaryDarkText">#B3B3B3</Color>
+    <Color x:Key="Tertiary">#404040</Color>
+
+
+    <!-- ===== Темна монохромна палітра застосунку ===== -->
+    <Color x:Key="AppBackground">#0A0A0A</Color>   <!-- фон сторінок -->
+    <Color x:Key="Surface">#161616</Color>         <!-- картки -->
+    <Color x:Key="Surface2">#1F1F1F</Color>        <!-- поля вводу, вкладені блоки -->
+    <Color x:Key="Surface3">#2A2A2A</Color>        <!-- другорядні кнопки -->
+    <Color x:Key="BorderColor">#333333</Color>     <!-- рамки -->
+    <Color x:Key="InputBorder">#404040</Color>
+    <Color x:Key="TextPrimary">#FFFFFF</Color>     <!-- основний текст -->
+    <Color x:Key="TextSecondary">#B3B3B3</Color>   <!-- другорядний текст -->
+    <Color x:Key="TextMuted">#8A8A8A</Color>        <!-- підказки, placeholder -->
+    <Color x:Key="AccentBg">#FFFFFF</Color>        <!-- головна кнопка: біла -->
+    <Color x:Key="AccentText">#000000</Color>      <!-- текст на білій кнопці -->
+    <Color x:Key="DangerColor">#F87171</Color>     <!-- помилки -->
+    <Color x:Key="DangerBg">#B91C1C</Color>        <!-- кнопка скасування бронювання -->
 
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>

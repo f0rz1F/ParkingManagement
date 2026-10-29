@@ -9,7 +9,7 @@
         <h2 class="fw-bold mb-1"><i class="bi bi-calendar-check text-warning me-2"></i>Журнал бронювань</h2>
         <p class="text-muted mb-0">Керування запитами та історією бронювання паркомісць (Actions)</p>
     </div>
-    <a asp-action="Create" class="btn btn-warning text-dark">
+    <a asp-action="Create" class="btn btn-warning">
         <i class="bi bi-calendar-plus me-1"></i> Створити бронювання
     </a>
 </div>
@@ -18,7 +18,7 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th class="ps-4">ID</th>
                         <th>Паркомісце</th>
@@ -69,7 +69,7 @@
                         <td>
                             @if (item.Status == "Active")
                             {
-                                <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-2">
+                                <span class="badge bg-warning-subtle border border-warning-subtle px-3 py-2">
                                     <i class="bi bi-hourglass-split me-1"></i> Активне (Active)
                                 </span>
                             }

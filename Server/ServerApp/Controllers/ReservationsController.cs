@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ServerApp.Models;
+using ServerApp.Services;
 
 namespace ServerApp.Controllers
 {
@@ -51,28 +52,32 @@ namespace ServerApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("SpotID,AttendantID,ReservationDate,Status")] Reservation reservation)
         {
+            if (!SpotStateSync.ReservationStatuses.Contains(reservation.Status))
+            {
+                ModelState.AddModelError("Status", "Некоректний статус бронювання");
+            }
+
             if (ModelState.IsValid)
             {
-                // Перевірка: чи не зайняте вже це паркомісце іншим бронюванням
-                var spot = await _context.ParkingSpots.FindAsync(reservation.SpotID);
-                if (spot != null && spot.Status == "Occupied" && reservation.Status == "Active")
+                // Перевірка: чи немає на цьому місці іншого активного бронювання
+                if (reservation.Status == SpotStateSync.ReservationActive &&
+                    await SpotStateSync.HasOtherActiveReservationAsync(_context, reservation.SpotID))
                 {
                     ModelState.AddModelError("SpotID", "Це паркувальне місце наразі вже зайняте");
                     await PopulateDropDownLists(reservation.SpotID, reservation.AttendantID);
                     return View(reservation);
                 }
 
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
                 _context.Add(reservation);
-
-                // Оновлення статусу місця на Occupied, якщо бронювання активне
-                if (reservation.Status == "Active" && spot != null)
-                {
-                    spot.Status = "Occupied";
-                    spot.UserID = reservation.AttendantID;
-                    _context.Update(spot);
-                }
-
                 await _context.SaveChangesAsync();
+
+                // Статус місця перераховується з бронювань
+                await SpotStateSync.SyncAsync(_context, reservation.SpotID);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             await PopulateDropDownLists(reservation.SpotID, reservation.AttendantID);
@@ -110,34 +115,43 @@ namespace ServerApp.Controllers
                 return NotFound();
             }
 
+            if (!SpotStateSync.ReservationStatuses.Contains(reservation.Status))
+            {
+                ModelState.AddModelError("Status", "Некоректний статус бронювання");
+            }
+
             if (ModelState.IsValid)
             {
-                try
+                var existing = await _context.Reservations.FindAsync(id);
+                if (existing == null)
                 {
-                    _context.Update(reservation);
-
-                    // Якщо бронювання завершене або скасоване, звільняємо місце
-                    if (reservation.Status == "Completed" || reservation.Status == "Cancelled")
-                    {
-                        var spot = await _context.ParkingSpots.FindAsync(reservation.SpotID);
-                        if (spot != null && spot.UserID == reservation.AttendantID)
-                        {
-                            spot.Status = "Free";
-                            spot.UserID = null;
-                            _context.Update(spot);
-                        }
-                    }
-
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                // Активне бронювання не може перетинатися з іншим активним на тому ж місці
+                if (reservation.Status == SpotStateSync.ReservationActive &&
+                    await SpotStateSync.HasOtherActiveReservationAsync(_context, reservation.SpotID, id))
                 {
-                    if (!await _context.Reservations.AnyAsync(e => e.ID == id))
-                    {
-                        return NotFound();
-                    }
-                    throw;
+                    ModelState.AddModelError("SpotID", "На цьому місці вже є інше активне бронювання");
+                    await PopulateDropDownLists(reservation.SpotID, reservation.AttendantID);
+                    return View(reservation);
                 }
+
+                var oldSpotId = existing.SpotID;
+
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                existing.SpotID = reservation.SpotID;
+                existing.AttendantID = reservation.AttendantID;
+                existing.ReservationDate = reservation.ReservationDate;
+                existing.Status = reservation.Status;
+                await _context.SaveChangesAsync();
+
+                // Перерахунок і старого, і нового місця (якщо місце змінили)
+                await SpotStateSync.SyncAsync(_context, oldSpotId, existing.SpotID);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             await PopulateDropDownLists(reservation.SpotID, reservation.AttendantID);
@@ -177,20 +191,17 @@ namespace ServerApp.Controllers
             var reservation = await _context.Reservations.FindAsync(id);
             if (reservation != null)
             {
-                // Якщо видаляється активне бронювання, повертаємо місцю статус вільного
-                if (reservation.Status == "Active")
-                {
-                    var spot = await _context.ParkingSpots.FindAsync(reservation.SpotID);
-                    if (spot != null && spot.UserID == reservation.AttendantID)
-                    {
-                        spot.Status = "Free";
-                        spot.UserID = null;
-                        _context.Update(spot);
-                    }
-                }
+                var spotId = reservation.SpotID;
+
+                await using var transaction = await _context.Database.BeginTransactionAsync();
 
                 _context.Reservations.Remove(reservation);
                 await _context.SaveChangesAsync();
+
+                // Після видалення місце звільняється, якщо на ньому не лишилось активних бронювань
+                await SpotStateSync.SyncAsync(_context, spotId);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
             return RedirectToAction(nameof(Index));
         }

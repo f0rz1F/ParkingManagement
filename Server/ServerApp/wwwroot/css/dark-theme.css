@@ -1,0 +1,279 @@
+/* =========================================================
+   Темна монохромна тема адмін-панелі (чорний / сірий / білий)
+   Підключається після bootstrap.min.css, працює разом з
+   атрибутом data-bs-theme="dark" на тегу <html>.
+   ========================================================= */
+
+:root,
+[data-bs-theme="dark"] {
+    /* Базова палітра */
+    --pm-bg: #0a0a0a;          /* фон сторінки — майже чорний */
+    --pm-surface: #161616;     /* картки, таблиці */
+    --pm-surface-2: #1f1f1f;   /* шапки таблиць, поля вводу */
+    --pm-surface-3: #2a2a2a;   /* hover */
+    --pm-border: #333333;
+    --pm-text: #ffffff;
+    --pm-text-2: #b3b3b3;      /* другорядний текст */
+    --pm-text-3: #8a8a8a;      /* підписи */
+
+    /* Перевизначення змінних Bootstrap */
+    --bs-body-bg: var(--pm-bg);
+    --bs-body-color: var(--pm-text);
+    --bs-emphasis-color: var(--pm-text);
+    --bs-secondary-color: var(--pm-text-2);
+    --bs-tertiary-color: var(--pm-text-3);
+    --bs-secondary-bg: var(--pm-surface-2);
+    --bs-tertiary-bg: var(--pm-surface);
+    --bs-border-color: var(--pm-border);
+    --bs-heading-color: var(--pm-text);
+    --bs-link-color: #ffffff;
+    --bs-link-hover-color: #d4d4d4;
+    --bs-link-color-rgb: 255, 255, 255;
+    --bs-link-hover-color-rgb: 212, 212, 212;
+
+    /* Акцентні кольори → білий / сірий */
+    --bs-primary: #ffffff;
+    --bs-primary-rgb: 255, 255, 255;
+    --bs-primary-text-emphasis: #ffffff;
+    --bs-primary-bg-subtle: #262626;
+    --bs-primary-border-subtle: #404040;
+    --bs-info: #d4d4d4;
+    --bs-info-rgb: 212, 212, 212;
+    --bs-info-text-emphasis: #e5e5e5;
+    --bs-info-bg-subtle: #262626;
+    --bs-info-border-subtle: #404040;
+    --bs-warning: #a3a3a3;
+    --bs-warning-rgb: 163, 163, 163;
+    --bs-warning-text-emphasis: #e5e5e5;
+    --bs-warning-bg-subtle: #262626;
+    --bs-warning-border-subtle: #404040;
+    --bs-secondary-text-emphasis: #b3b3b3;
+    --bs-secondary-bg-subtle: #1f1f1f;
+    --bs-secondary-border-subtle: #333333;
+
+    /* Статуси лишаються приглушено кольоровими, щоб їх було видно */
+    --bs-success-text-emphasis: #86efac;
+    --bs-success-bg-subtle: #0f2417;
+    --bs-success-border-subtle: #1e4d2f;
+    --bs-danger-text-emphasis: #fca5a5;
+    --bs-danger-bg-subtle: #2a1212;
+    --bs-danger-border-subtle: #5a2323;
+}
+
+body {
+    background-color: var(--pm-bg);
+    color: var(--pm-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1; }
+
+/* ---------- Текст ---------- */
+.text-muted,
+.text-secondary,
+.text-body-secondary { color: var(--pm-text-2) !important; }
+.text-dark,
+.text-primary,
+.text-info,
+.text-warning { color: var(--pm-text) !important; }
+.text-white-50 { color: var(--pm-text-2) !important; }
+.form-label,
+label { color: var(--pm-text); }
+code { color: #e5e5e5; background: var(--pm-surface-2); padding: 1px 6px; border-radius: 4px; }
+
+/* ---------- Навбар і футер ---------- */
+.navbar.bg-primary,
+.navbar {
+    background-color: #000000 !important;
+    border-bottom: 1px solid var(--pm-border);
+}
+.navbar-brand { font-weight: 600; color: #fff !important; }
+.navbar .nav-link { color: var(--pm-text-2) !important; }
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-link.active { color: #fff !important; }
+
+.footer,
+footer.bg-white,
+.bg-white {
+    background-color: #000000 !important;
+    border-color: var(--pm-border) !important;
+    color: var(--pm-text-3) !important;
+}
+.bg-light { background-color: var(--pm-surface-2) !important; }
+
+/* ---------- Картки ---------- */
+.card {
+    background-color: var(--pm-surface);
+    color: var(--pm-text);
+    border: 1px solid var(--pm-border);
+    border-radius: 10px;
+}
+.card-header,
+.card-footer {
+    background-color: var(--pm-surface-2);
+    border-color: var(--pm-border);
+    color: var(--pm-text);
+}
+.shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, .6) !important; }
+.border-primary,
+.border-info,
+.border-warning { border-color: #737373 !important; }
+.border-top,
+.border-bottom { border-color: var(--pm-border) !important; }
+
+/* Кружечки з іконками на головній */
+.bg-primary-subtle,
+.bg-info-subtle,
+.bg-warning-subtle { background-color: #262626 !important; color: #fff !important; }
+.bg-secondary-subtle { background-color: #1f1f1f !important; }
+
+/* ---------- Таблиці ---------- */
+.table-responsive { background: var(--pm-surface); border-radius: 10px; }
+.table {
+    --bs-table-bg: var(--pm-surface);
+    --bs-table-color: var(--pm-text);
+    --bs-table-border-color: var(--pm-border);
+    --bs-table-hover-bg: var(--pm-surface-3);
+    --bs-table-hover-color: var(--pm-text);
+    --bs-table-striped-bg: #1b1b1b;
+    color: var(--pm-text);
+}
+.table > thead,
+.table-light,
+.table > thead > tr > th {
+    --bs-table-bg: var(--pm-surface-2);
+    --bs-table-color: var(--pm-text-2);
+    background-color: var(--pm-surface-2) !important;
+    color: var(--pm-text-2) !important;
+    border-color: var(--pm-border) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: .78rem;
+    letter-spacing: .04em;
+}
+
+/* ---------- Бейджі ---------- */
+.badge.bg-dark { background-color: #2a2a2a !important; color: #fff !important; border: 1px solid #404040; }
+.badge.bg-primary,
+.badge.bg-info,
+.badge.bg-secondary { background-color: #404040 !important; color: #fff !important; }
+.badge.bg-warning { background-color: #d4d4d4 !important; color: #000 !important; }
+
+/* ---------- Кнопки ---------- */
+/* Головна дія — біла кнопка з чорним текстом */
+.btn-primary,
+.btn-info,
+.btn-warning {
+    --bs-btn-color: #000;
+    --bs-btn-bg: #ffffff;
+    --bs-btn-border-color: #ffffff;
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #d4d4d4;
+    --bs-btn-hover-border-color: #d4d4d4;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #bdbdbd;
+    --bs-btn-active-border-color: #bdbdbd;
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: #737373;
+    --bs-btn-disabled-border-color: #737373;
+    color: #000 !important;
+    font-weight: 600;
+}
+/* Другорядні — сірі */
+.btn-light,
+.btn-secondary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #2a2a2a;
+    --bs-btn-border-color: #404040;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #3a3a3a;
+    --bs-btn-hover-border-color: #525252;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #404040;
+    --bs-btn-active-border-color: #525252;
+}
+/* Контурні */
+.btn-outline-primary,
+.btn-outline-info,
+.btn-outline-warning,
+.btn-outline-secondary,
+.btn-outline-light {
+    --bs-btn-color: #e5e5e5;
+    --bs-btn-border-color: #525252;
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #ffffff;
+    --bs-btn-hover-border-color: #ffffff;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #d4d4d4;
+    --bs-btn-active-border-color: #d4d4d4;
+}
+/* Видалення лишається червоним, щоб не натиснути випадково */
+.btn-outline-danger {
+    --bs-btn-color: #f87171;
+    --bs-btn-border-color: #7f1d1d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #b91c1c;
+    --bs-btn-hover-border-color: #b91c1c;
+}
+.btn-danger {
+    --bs-btn-bg: #b91c1c;
+    --bs-btn-border-color: #b91c1c;
+    --bs-btn-hover-bg: #991b1b;
+    --bs-btn-hover-border-color: #991b1b;
+}
+
+/* ---------- Форми ---------- */
+.form-control,
+.form-select {
+    background-color: var(--pm-surface-2);
+    color: var(--pm-text);
+    border-color: #404040;
+}
+.form-control::placeholder { color: var(--pm-text-3); }
+.form-control:focus,
+.form-select:focus {
+    background-color: #262626;
+    color: #fff;
+    border-color: #a3a3a3;
+    box-shadow: 0 0 0 .2rem rgba(255, 255, 255, .12);
+}
+.form-control:disabled,
+.form-control[readonly] { background-color: #141414; color: var(--pm-text-2); }
+.form-text { color: var(--pm-text-3) !important; }
+.input-group-text { background-color: #262626; color: var(--pm-text-2); border-color: #404040; }
+
+/* ---------- Сповіщення ---------- */
+.alert-danger { background-color: #2a1212; color: #fca5a5; border-color: #5a2323; }
+.alert-warning,
+.alert-info,
+.alert-secondary { background-color: #1f1f1f; color: #e5e5e5; border-color: #404040; }
+
+/* ---------- Сторінка входу ---------- */
+.login-page {
+    background-color: var(--pm-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.login-card {
+    background: var(--pm-surface);
+    border: 1px solid var(--pm-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .7);
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+}
+
+/* Видимий фокус для клавіатури */
+a:focus-visible,
+.btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Статусні кольори, підсвітлені для читабельності на чорному фоні */
+.text-success { color: #4ade80 !important; }
+.text-danger  { color: #f87171 !important; }

@@ -116,6 +116,7 @@ namespace ClientApp.ViewModels
             bool confirm = await Shell.Current.DisplayAlert("Звільнення місця", $"Ви бажаєте скасувати бронювання місця № {spot.Number}?", "Так, звільнити", "Ні");
             if (!confirm) return;
 
+            var reloadNeeded = false;
             IsBusy = true;
             try
             {
@@ -123,8 +124,8 @@ namespace ClientApp.ViewModels
                 if (success)
                 {
                     InvalidateCache();
+                    reloadNeeded = true;
                     await Shell.Current.DisplayAlert("Успіх", message, "OK");
-                    await LoadSpotsAsync();
                 }
                 else
                 {
@@ -134,6 +135,13 @@ namespace ClientApp.ViewModels
             finally
             {
                 IsBusy = false;
+            }
+
+            // Перезавантаження списку ПІСЛЯ скидання IsBusy,
+            // інакше LoadSpotsAsync одразу виходить і список лишається старим
+            if (reloadNeeded)
+            {
+                await LoadSpotsAsync();
             }
         }
 
@@ -162,6 +170,8 @@ namespace ClientApp.ViewModels
         private async Task LogoutAsync()
         {
             _apiService.Logout();
+            InvalidateCache(); // щоб наступний користувач не бачив чужих даних з кешу
+            Spots.Clear();
             await Shell.Current.GoToAsync("//LoginPage");
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ServerApp.Models;
+using ServerApp.Services;
 
 namespace ServerApp.Controllers
 {
@@ -45,6 +46,8 @@ namespace ServerApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Number,Status,UserID")] ParkingSpot spot)
         {
+            ValidateStatus(spot);
+
             if (ModelState.IsValid)
             {
                 // Перевірка унікальності номера місця
@@ -56,8 +59,19 @@ namespace ServerApp.Controllers
                     return View(spot);
                 }
 
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                var requestedStatus = spot.Status;
+                var requestedUserId = spot.UserID;
+                spot.Status = SpotStateSync.SpotFree;
+                spot.UserID = null;
                 _context.Add(spot);
                 await _context.SaveChangesAsync();
+
+                // Зайняте місце = активне бронювання на обраного працівника
+                await ApplyRequestedStateAsync(spot.ID, requestedStatus, requestedUserId);
+                await transaction.CommitAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             await PopulateAttendantsDropDownList(spot.UserID);
@@ -95,6 +109,8 @@ namespace ServerApp.Controllers
                 return NotFound();
             }
 
+            ValidateStatus(spot);
+
             if (ModelState.IsValid)
             {
                 // Перевірка унікальності номера місця серед інших записів
@@ -106,23 +122,77 @@ namespace ServerApp.Controllers
                     return View(spot);
                 }
 
-                try
+                var existing = await _context.ParkingSpots.FindAsync(id);
+                if (existing == null)
                 {
-                    _context.Update(spot);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await _context.ParkingSpots.AnyAsync(e => e.ID == id))
-                    {
-                        return NotFound();
-                    }
-                    throw;
-                }
+
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                existing.Number = spot.Number;
+                await _context.SaveChangesAsync();
+
+                // Статус і працівник змінюються лише через бронювання, щоб дані не розходились
+                await ApplyRequestedStateAsync(id, spot.Status, spot.UserID);
+                await transaction.CommitAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             await PopulateAttendantsDropDownList(spot.UserID);
             return View(spot);
+        }
+
+        // Перевірка значень статусу та працівника з форми
+        private void ValidateStatus(ParkingSpot spot)
+        {
+            if (!SpotStateSync.SpotStatuses.Contains(spot.Status))
+            {
+                ModelState.AddModelError("Status", "Некоректний статус місця");
+            }
+            else if (spot.Status == SpotStateSync.SpotOccupied && spot.UserID == null)
+            {
+                ModelState.AddModelError("UserID", "Для зайнятого місця оберіть працівника");
+            }
+        }
+
+        // Приведення бронювань місця до обраного в адмінці стану:
+        //   Free     -> усі активні бронювання місця скасовуються;
+        //   Occupied -> якщо місце вже за цим працівником, нічого не змінюється,
+        //               інакше старі активні бронювання скасовуються і створюється нове.
+        private async Task ApplyRequestedStateAsync(int spotId, string status, int? userId)
+        {
+            var activeReservations = await _context.Reservations
+                .Where(r => r.SpotID == spotId && r.Status == SpotStateSync.ReservationActive)
+                .ToListAsync();
+
+            var keepCurrent = status == SpotStateSync.SpotOccupied &&
+                              activeReservations.Count == 1 &&
+                              activeReservations[0].AttendantID == userId;
+
+            if (!keepCurrent)
+            {
+                foreach (var reservation in activeReservations)
+                {
+                    reservation.Status = SpotStateSync.ReservationCancelled;
+                }
+
+                if (status == SpotStateSync.SpotOccupied && userId != null)
+                {
+                    _context.Reservations.Add(new Reservation
+                    {
+                        SpotID = spotId,
+                        AttendantID = userId.Value,
+                        ReservationDate = DateTime.Now,
+                        Status = SpotStateSync.ReservationActive
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            await SpotStateSync.SyncAsync(_context, spotId);
+            await _context.SaveChangesAsync();
         }
 
         // Відображення сторінки підтвердження видалення (GET: /ParkingSpots/Delete/5)
